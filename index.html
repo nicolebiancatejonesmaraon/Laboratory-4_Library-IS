@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library IS - JS Fundamentals Lab</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fdf6f9;
+            /* very light pinkish-white */
+        }
+    </style>
+</head>
+
+<body class="p-4 sm:p-8">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-gray-100 bg-opacity-90 flex items-center justify-center z-50">
+        <div class="text-center p-8 bg-white rounded-xl shadow-md">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-300 mx-auto mb-4"></div>
+            <p id="loading-message" class="text-pink-400 font-semibold">Initializing Firebase...</p>
+        </div>
+    </div>
+
+    <div class="container mx-auto">
+
+        <!-- Header -->
+        <header class="mb-8 p-6 bg-white rounded-xl shadow-sm border-b-2 border-pink-200">
+            <h1 class="text-3xl font-extrabold text-pink-500 mb-2"> Library IS Console</h1>
+            <p class="text-lg text-gray-600">Manage Book Records (Array) and Object Behavior (Borrow/Return).</p>
+            <p id="user-id-display" class="text-xs text-gray-400 mt-2">User ID: loading...</p>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Add / Update Form -->
+            <section class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm h-min sticky top-4">
+                <h2 class="text-2xl font-bold text-pink-400 mb-4 border-b border-pink-100 pb-2">Add / Update Book</h2>
+                <form id="record-form" class="space-y-4">
+                    <input type="hidden" id="record-id">
+                    <div>
+                        <label for="isbn" class="block text-sm font-medium text-gray-700">ISBN (Unique Key)</label>
+                        <input type="text" id="isbn" required placeholder="978-0123456789"
+                            class="mt-1 block w-full rounded-lg border border-gray-200 shadow-sm focus:border-pink-300 focus:ring-pink-200 p-2">
+                    </div>
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                        <input type="text" id="title" required placeholder="The Lord of the Rings"
+                            class="mt-1 block w-full rounded-lg border border-gray-200 shadow-sm focus:border-pink-300 focus:ring-pink-200 p-2">
+                    </div>
+                    <div>
+                        <label for="author" class="block text-sm font-medium text-gray-700">Author</label>
+                        <input type="text" id="author" required placeholder="J.R.R. Tolkien"
+                            class="mt-1 block w-full rounded-lg border border-gray-200 shadow-sm focus:border-pink-300 focus:ring-pink-200 p-2">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="year" class="block text-sm font-medium text-gray-700">Publication Year</label>
+                            <input type="number" id="year" required min="1000" placeholder="1954"
+                                class="mt-1 block w-full rounded-lg border border-gray-200 shadow-sm focus:border-pink-300 focus:ring-pink-200 p-2">
+                        </div>
+                        <div>
+                            <label for="quantity" class="block text-sm font-medium text-gray-700">Stock Quantity</label>
+                            <input type="number" id="quantity" required min="0" placeholder="10"
+                                class="mt-1 block w-full rounded-lg border border-gray-200 shadow-sm focus:border-pink-300 focus:ring-pink-200 p-2">
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full px-4 py-2 bg-pink-200 text-pink-700 font-semibold rounded-lg shadow-sm hover:bg-pink-300 transition duration-150">Add
+                        Record</button>
+                    <button type="button"
+                        class="w-full px-4 py-2 bg-gray-100 text-gray-600 font-semibold rounded-lg shadow-sm hover:bg-gray-200 transition duration-150"
+                        id="reset-button">Reset Form / View</button>
+                </form>
+            </section>
+
+            <!-- Summary + Controls + List -->
+            <section class="lg:col-span-2 space-y-8">
+
+                <!-- Summary -->
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-2xl font-bold text-pink-400 mb-4 border-b border-pink-100 pb-2">Library Summary</h2>
+                    <div id="summary-section">
+                        <!-- Summary content rendered here -->
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-2xl font-bold text-pink-400 mb-4 border-b border-pink-100 pb-2">Data Controls</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label for="filter-select" class="block text-sm font-medium text-gray-700">Filter
+                                Records</label>
+                            <select id="filter-select"
+                                class="mt-1 block w-full rounded-lg border border-gray-200 shadow-sm focus:border-pink-300 focus:ring-pink-200 p-2">
+                                <option value="none">Show All</option>
+                                <option value="low_stock">Low Stock (Qty &lt;= 1)</option>
+                                <option value="old_books">Old Books (Published > 10 Years Ago)</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="search-input" class="block text-sm font-medium text-gray-700">Live Search
+                                (Title, Author, ISBN)</label>
+                            <input type="text" id="search-input" placeholder="Search keywords..."
+                                class="mt-1 block w-full rounded-lg border border-gray-200 shadow-sm focus:border-pink-300 focus:ring-pink-200 p-2">
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-pink-100">
+                        <button type="button"
+                            class="px-4 py-2 bg-gray-100 text-gray-600 font-semibold rounded-lg shadow-sm hover:bg-gray-200 transition duration-150"
+                            id="view-toggle-button">Switch to Card View</button>
+                    </div>
+                </div>
+
+                <!-- Book Records -->
+                <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
+                    <h2 class="text-2xl font-bold text-pink-400 mb-4 border-b border-pink-100 pb-2">Book Records <span
+                            id="view-name">(Table View)</span></h2>
+                    <div id="books-list">
+                        <p class="text-center text-gray-400 py-6">Load books here...</p>
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast-message"
+        class="fixed bottom-4 right-4 p-4 rounded-lg shadow-md text-pink-700 z-50 transition-transform duration-500 transform translate-y-full bg-pink-50 border border-pink-200">
+        Message Here
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-gray-100 bg-opacity-90 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-xl shadow-md max-w-sm w-full">
+            <h3 class="text-xl font-bold text-pink-400 mb-4">Confirm Action</h3>
+            <p id="modal-text" class="text-gray-700 mb-6">Are you sure you want to proceed?</p>
+            <div class="flex justify-end space-x-3">
+                <button id="modal-cancel-button"
+                    class="px-4 py-2 bg-gray-100 text-gray-600 font-semibold rounded-lg shadow-sm hover:bg-gray-200 transition duration-150">Cancel</button>
+                <button id="modal-confirm-button"
+                    class="px-4 py-2 bg-pink-100 text-pink-700 font-semibold rounded-lg shadow-sm hover:bg-pink-200 transition duration-150">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./firebase.js"></script>
+    <script type="module" src="./app.js"></script>
+
+</body>
+
+</html>
